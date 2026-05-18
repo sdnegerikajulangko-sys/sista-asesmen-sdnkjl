@@ -16,8 +16,8 @@ const QUESTION_TYPES: QuestionType[] = ['Pilihan Ganda', 'Pilihan Ganda Kompleks
 
 // KODE KEAMANAN / NAMA SEKOLAH YANG DIIZINKAN
 const ALLOWED_SCHOOLS = [
-  "SD Negeri 1 Ampana Kota",
-  "SD NEGERI 1 AMPANA KOTA",
+  "SD Negeri Kajulangko",
+  "SD NEGERI KAJULANGKO",
   "SD NEGERI UNGGULAN" // Anda bisa menambahkan lebih banyak di sini
 ];
 
