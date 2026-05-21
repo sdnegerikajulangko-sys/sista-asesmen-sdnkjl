@@ -16,16 +16,9 @@ const QUESTION_TYPES: QuestionType[] = ['Pilihan Ganda', 'Pilihan Ganda Kompleks
 
 // KODE KEAMANAN / NAMA SEKOLAH YANG DIIZINKAN
 const ALLOWED_SCHOOLS = [
-  "SD Negeri 1 Merdeka",
-  "SD NEGERI 1 MERDEKA",
-  "SDN 1 MERDEKA"
-];
-
-// KODE KEAMANAN / NAMA GURU YANG DIIZINKAN
-const ALLOWED_TEACHERS = [
-  "Rista Kasaraeng, S.Pd",
-  "RISTA KASARAENG, S.Pd",
-  "Fidhal"
+  "SD Negeri Kajulangko",
+  "SD NEGERI KAJULANGKO",
+  "SDN KAJULANGKO"
 ];
 
 export default function GeneratorForm({ onSubmit, isLoading, mode }: GeneratorFormProps) {
@@ -72,10 +65,9 @@ export default function GeneratorForm({ onSubmit, isLoading, mode }: GeneratorFo
   const isSchoolValid = ALLOWED_SCHOOLS.some(
     (school) => school.toLowerCase() === formData.schoolName.trim().toLowerCase()
   );
-  const isTeacherValid = ALLOWED_TEACHERS.some(
-    (teacher) => teacher.toLowerCase() === formData.teacherName.trim().toLowerCase()
-  );
-  const isSecurityValid = isSchoolValid && isTeacherValid;
+  
+  // Sekarang hanya memvalidasi berdasarkan nama sekolah saja
+  const isSecurityValid = isSchoolValid;
 
   useEffect(() => {
     localStorage.setItem(`sista_form_${mode}`, JSON.stringify(formData));
@@ -367,8 +359,6 @@ export default function GeneratorForm({ onSubmit, isLoading, mode }: GeneratorFo
                       </select>
                     </div>
                   )}
-                  
-                  {/* PERBAIKAN: Input Skor/Soal telah dihapus dari sini */}
 
                   {formData.questionConfigs.length > 1 && (
                     <div className="pt-5">
@@ -444,7 +434,7 @@ export default function GeneratorForm({ onSubmit, isLoading, mode }: GeneratorFo
         ) : !isSecurityValid ? (
           <>
             <AlertTriangle className="w-6 h-6" />
-            Aplikasi Terkunci: Kode Validasi Anda Tidak Valid. (Hubungi Fidhal Touna AI)
+            Aplikasi Terkunci: Kode Validasi Satuan Pendidikan Anda Tidak Valid.
           </>
         ) : (
           <>
