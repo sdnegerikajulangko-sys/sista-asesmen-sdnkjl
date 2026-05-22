@@ -20,7 +20,8 @@ export interface SoalFormData {
   grade: string;
   semester: string;
   subject: string;
-  material: string;
+  timeAllocation: string; // 1. MENAMBAHKAN FIELD ALOKASI WAKTU
+  material: string[];     // 2. MENGUBAH STRING MENJADI ARRAY STRING
   cp: string; 
   tp: string[];
   withImages?: boolean;
@@ -34,11 +35,13 @@ export interface QuestionItem {
   text: string;
   stimulus?: string; // Text stimulus (literacy/numeracy)
   imageUrl?: string; // URL for image stimulus
+  imagePrompt?: string; // <-- Tambahkan baris ini untuk mendukung fitur gambar AI
   options?: string[]; // For Multiple Choice / True-False
   multiOptions?: { text: string; isCorrect: boolean }[]; // For PGK
   matchingPairs?: { prompt: string; answer: string }[]; // For Matching
   answerKey: string;
-  explanation: string;
+  explanation: string; // Akan digunakan untuk "Pembahasan Materi"
+  score: string;       // <-- Tambahkan baris ini untuk menyimpan "Analisis Skor"
   cognitiveLevel: string;
 }
 
@@ -58,7 +61,7 @@ export interface GeneratedSoal {
     subject: string;
     classSemester: string;
     material?: string;
-    timeLimit: string;
+    timeLimit: string; // Properti ini nantinya bisa Anda petakan dari formData.timeAllocation saat melakukan generate
   };
   questions: QuestionItem[];
   kisiKisi: KisiKisiItem[];
