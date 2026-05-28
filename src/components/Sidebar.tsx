@@ -138,7 +138,7 @@ export default function Sidebar({
             />
             <div className="min-w-0">
               <h1 className="text-xs font-black text-slate-900 tracking-tight uppercase leading-tight line-clamp-2 whitespace-normal">
-                {schoolName || "SD Negeri 1 Merdeka"}
+                {schoolName || "SD Negeri Kajulangko"}
               </h1>
               <div className="flex items-center gap-1.5 mt-1 overflow-hidden">
                  <div className="h-1.5 w-1.5 bg-amber-400 rounded-full shrink-0" />
