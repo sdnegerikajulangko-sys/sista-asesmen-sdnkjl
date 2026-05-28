@@ -1,0 +1,13 @@
+SISTA-APP - LOGO KUSTOMISASI
+=============================
+
+Anda dapat mengganti logo aplikasi ini dengan logo sekolah Anda sendiri!
+
+Petunjuk Penggantian:
+1. Siapkan file logo Anda dalam format PNG atau JPG.
+2. Beri nama file tersebut: logo.png
+3. Unggah (upload) atau letakkan file tersebut di dalam folder ini (yaitu folder '/public') dengan menimpa (overwrite) file 'logo.png' yang sudah ada.
+4. Refresh halaman preview aplikasi Anda untuk melihat perubahan logo di pojok kiri atas maupun pada halaman Login.
+
+Terima kasih telah menggunakan Sista_App!
+Sistem dikembangkan oleh Fidhal Touna.
