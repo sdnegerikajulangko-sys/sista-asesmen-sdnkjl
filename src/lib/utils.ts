@@ -25,4 +25,3 @@ export function getAutomaticFase(level: string, grade: string): string {
   }
   return '';
 }
-
