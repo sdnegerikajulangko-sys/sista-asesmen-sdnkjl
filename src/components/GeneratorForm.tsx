@@ -16,8 +16,8 @@ interface GeneratorFormProps {
 const COGNITIVE_LEVELS = ['LOTS', 'MOTS', 'HOTS'];
 const QUESTION_TYPES: QuestionType[] = ['Pilihan Ganda', 'Pilihan Ganda Kompleks', 'Isian Singkat', 'Uraian', 'Benar Salah', 'Menjodohkan'];
 
-const ALLOWED_SCHOOLS = ["SD Negeri 1 Merdeka", "SD NEGERI 1 MERDEKA", "SDN 1 MERDEKA"];
-const ALLOWED_TEACHERS = ["Rista Kasaraeng, S.Pd", "RISTA KASARAENG, S.Pd", "Fidhal"];
+// Hanya menggunakan sekolah sebagai kode keamanan
+const ALLOWED_SCHOOLS = ["SD Negeri Kajulangko", "SD NEGERI KAJULANGKO", "SDN KAJULANGKO"];
 
 export default function GeneratorForm({ onSubmit, isLoading, mode, setSoalResult, setIsLoading }: GeneratorFormProps) {
   const isMultiMaterialAllowed = mode === 'sts' || mode === 'sas';
@@ -38,8 +38,8 @@ export default function GeneratorForm({ onSubmit, isLoading, mode, setSoalResult
     };
   });
 
-  const isSecurityValid = ALLOWED_SCHOOLS.some(s => s.toLowerCase() === formData.schoolName.trim().toLowerCase()) &&
-                          ALLOWED_TEACHERS.some(t => t.toLowerCase() === formData.teacherName.trim().toLowerCase());
+  // Logika diubah: Validasi keamanan HANYA berdasarkan nama sekolah
+  const isSecurityValid = ALLOWED_SCHOOLS.some(s => s.toLowerCase() === formData.schoolName.trim().toLowerCase());
 
   const isMaterialFilled = formData.material.every((mat: string) => mat && mat.trim() !== '');
 
@@ -193,11 +193,10 @@ export default function GeneratorForm({ onSubmit, isLoading, mode, setSoalResult
             <div className="space-y-1 text-slate-700">
               <h4 className="font-bold text-sm">Validasi Administrasi Penting</h4>
               <p className="text-xs leading-relaxed text-slate-600/95">
-                Agar dapat melakukan perancangan asesmen, Anda wajib mengisi data instansi dengan validasi yang sah. Gunakan detail sekolah & nama guru di bawah atau klik tombol isi demo.
+                Agar dapat melakukan perancangan asesmen, Anda wajib mengisi data instansi dengan nama sekolah yang terdaftar. Gunakan detail sekolah di bawah atau klik tombol isi demo.
               </p>
               <div className="flex flex-wrap gap-2 text-[10px] font-mono mt-1 pt-1 border-t border-amber-100">
                 <span className="bg-amber-100 hover:bg-amber-200/60 px-2 py-0.5 rounded cursor-pointer" onClick={() => setFormData((p: any) => ({ ...p, schoolName: "SD Negeri 1 Merdeka" }))}>Sekolah: "SD Negeri 1 Merdeka"</span>
-                <span className="bg-amber-100 hover:bg-amber-200/60 px-2 py-0.5 rounded cursor-pointer" onClick={() => setFormData((p: any) => ({ ...p, teacherName: "Rista Kasaraeng, S.Pd" }))}>Guru: "Rista Kasaraeng, S.Pd"</span>
               </div>
             </div>
           </div>
