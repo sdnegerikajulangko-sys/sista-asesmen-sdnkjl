@@ -91,45 +91,75 @@ export default function ModulTable({ data, formInput, onBack, mode, setCurrentMe
     if (key.startsWith('E')) return 4;
     return -1;
   };
+  const getCorrectMultiOptionIndices = (q: any) => {
+    if (!q.answerKey) return [];
+    // Ubah kunci jawaban menjadi string agar mudah dibaca (misal: "A, C" atau "A dan C")
+    const keyStr = String(q.answerKey).toUpperCase();
+    const indices: number[] = [];
+    
+    if (keyStr.includes('A')) indices.push(0);
+    if (keyStr.includes('B')) indices.push(1);
+    if (keyStr.includes('C')) indices.push(2);
+    if (keyStr.includes('D')) indices.push(3);
+    if (keyStr.includes('E')) indices.push(4);
+    
+    return indices;
+  };
 
   const calculateScore = () => {
-    let correct = 0;
-    let totalAutograded = 0;
+  let correct = 0;
+  let totalAutograded = 0;
+  
+  localQuestionsOnline.forEach((q: any) => {
+    const studentAns = quizAnswers[q.number];
     
-    // Menggunakan localQuestionsOnline untuk kalkulasi ujian online
-    localQuestionsOnline.forEach((q: any) => {
-      const studentAns = quizAnswers[q.number];
+    // 1. Pengecekan Pilihan Ganda Biasa
+    if (q.type === 'Pilihan Ganda') {
+      totalAutograded++;
+      const correctIdx = getCorrectOptionIndex(q);
+      if (correctIdx !== -1 && studentAns === correctIdx) {
+        correct++;
+      }
+    } 
+    // 2. Pengecekan Benar Salah
+    else if (q.type === 'Benar Salah') {
+      totalAutograded++;
+      const key = String(q.answerKey).toUpperCase().trim();
+      const studentStr = String(studentAns || "").toUpperCase().trim();
+      const isKeyBenar = key.includes("BENAR") || key === "B" || key === "TRUE";
+      const isAnsBenar = studentStr === "BENAR";
+      if (isKeyBenar === isAnsBenar) {
+        correct++;
+      }
+    }
+    // 3. PENGECEKAN PILIHAN GANDA KOMPLEKS (BARU)
+    else if (q.type === 'Pilihan Ganda Kompleks') {
+      totalAutograded++;
+      const correctIndices = getCorrectMultiOptionIndices(q);
+      const studentAnsArray = Array.isArray(studentAns) ? studentAns : [];
       
-      if (q.type === 'Pilihan Ganda') {
-        totalAutograded++;
-        const correctIdx = getCorrectOptionIndex(q);
-        if (correctIdx !== -1 && studentAns === correctIdx) {
-          correct++;
-        }
-      } else if (q.type === 'Benar Salah') {
-        totalAutograded++;
-        const key = String(q.answerKey).toUpperCase().trim();
-        const studentStr = String(studentAns || "").toUpperCase().trim();
-        const isKeyBenar = key.includes("BENAR") || key === "B" || key === "TRUE";
-        const isAnsBenar = studentStr === "BENAR";
-        if (isKeyBenar === isAnsBenar) {
+      // Syarat benar: Jumlah jawaban yang dipilih sama DAN isinya persis sama dengan kunci
+      if (correctIndices.length > 0 && correctIndices.length === studentAnsArray.length) {
+        const isAllCorrect = correctIndices.every(idx => studentAnsArray.includes(idx));
+        if (isAllCorrect) {
           correct++;
         }
       }
-    });
+    }
+  });
 
-    const score = totalAutograded > 0 ? Math.round((correct / totalAutograded) * 100) : 100;
+  const score = totalAutograded > 0 ? Math.round((correct / totalAutograded) * 100) : 100;
 
-    setQuizResult({
-      score,
-      correctCount: correct,
-      incorrectCount: totalAutograded - correct,
-      totalAutograded,
-      totalQuestions: localQuestionsOnline.length
-    });
-    setQuizSubmitted(true);
-  };
-
+  setQuizResult({
+    score,
+    correctCount: correct,
+    incorrectCount: totalAutograded - correct,
+    totalAutograded,
+    totalQuestions: localQuestionsOnline.length
+  });
+  setQuizSubmitted(true);
+};
+  
   const getMinutesFromAllocation = () => {
     const text = formInput.timeAllocation || data?.header?.timeLimit || "60";
     const num = parseInt(text.replace(/[^0-9]/g, ""));
@@ -1122,33 +1152,80 @@ export default function ModulTable({ data, formInput, onBack, mode, setCurrentMe
                             </div>
                           )}
 
-                          {/* MENJODOHKAN */}
+                          {/* MENJODOHKAN ONLINE (BISA GAMBAR) */}
                           {q.type === 'Menjodohkan' && q.matchingPairs && (
-                            <div className="space-y-3 bg-slate-50 p-4 rounded-xl border border-slate-200">
-                              <p className="text-[10px] font-black text-indigo-700 uppercase tracking-wider mb-2">🤝 Hubungkan pernyataan A dengan jawaban pasangan yang tepat:</p>
-                              {q.matchingPairs.map((pair, i) => {
-                                return (
-                                  <div key={i} className="flex flex-col sm:flex-row gap-3 items-start sm:items-center justify-between border-b border-slate-200/50 pb-3 last:border-0 last:pb-0">
-                                    <span className="text-slate-800 font-bold text-xs sm:text-sm w-full sm:w-3/5">{pair.prompt}</span>
-                                    <input
-                                      type="text"
-                                      placeholder="Ketik jawaban pasangannya..."
-                                      value={quizAnswers[q.number]?.[i] || ""}
-                                      onChange={(e) => {
-                                        const prev = quizAnswers[q.number] || {};
-                                        setQuizAnswers(answers => ({
-                                          ...answers,
-                                          [q.number]: { ...prev, [i]: e.target.value }
-                                        }));
-                                      }}
-                                      className="w-full sm:max-w-xs border border-slate-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 rounded-xl px-3.5 py-2 text-xs outline-none bg-white font-medium"
-                                    />
-                                  </div>
-                                );
-                              })}
+                            <div className="space-y-4 bg-slate-50 p-4 rounded-xl border border-slate-200">
+                              <p className="text-[10px] font-black text-indigo-700 uppercase tracking-wider mb-2">🤝 Pilih jawaban pasangan yang tepat untuk setiap pernyataan:</p>
+                              
+                              {(() => {
+                                // 1. Kumpulkan semua opsi jawaban B dari data
+                                const availableOptions = [...q.matchingPairs]
+                                  .map(p => p.target || p.answer || "")
+                                  .filter(opt => opt !== "");
+                          
+                                // Fungsi helper untuk mengecek URL Gambar
+                                const isImageUrl = (url: string) => {
+                                  return typeof url === 'string' && 
+                                         (url.startsWith('http') || url.startsWith('/')) && 
+                                         url.match(/\.(jpeg|jpg|gif|png|webp)$/i) != null;
+                                };
+                          
+                                return q.matchingPairs.map((pair, i) => {
+                                  const valueA = pair.prompt;
+                                  const currentAnswer = quizAnswers[q.number]?.[i] || "";
+                          
+                                  return (
+                                    <div key={i} className="flex flex-col lg:flex-row gap-4 items-start lg:items-center justify-between border-b border-slate-200/60 pb-4 last:border-0 last:pb-0">
+                                      
+                                      {/* SISI KIRI: PERNYATAAN A (Bisa Teks / Gambar) */}
+                                      <div className="w-full lg:w-1/2 text-slate-800 font-bold text-xs sm:text-sm">
+                                        {isImageUrl(valueA) ? (
+                                          <img src={valueA} alt="Pertanyaan" className="max-h-28 w-auto rounded-lg shadow-sm border border-slate-200" />
+                                        ) : (
+                                          <span>{valueA}</span>
+                                        )}
+                                      </div>
+                          
+                                      {/* SISI KANAN: PILIHAN JAWABAN (Desain Grid Kancing/Kartu jika ada gambar) */}
+                                      <div className="w-full lg:w-1/2 flex flex-wrap gap-2">
+                                        {availableOptions.map((opt, optIndex) => {
+                                          const isSelected = currentAnswer === opt;
+                                          
+                                          return (
+                                            <button
+                                              key={optIndex}
+                                              type="button"
+                                              onClick={() => {
+                                                const prev = quizAnswers[q.number] || {};
+                                                setQuizAnswers(answers => ({
+                                                  ...answers,
+                                                  [q.number]: { ...prev, [i]: opt }
+                                                }));
+                                              }}
+                                              className={`p-2 rounded-xl border text-xs transition-all flex items-center justify-center min-h-[40px] ${
+                                                isSelected
+                                                  ? "border-indigo-600 bg-indigo-50 text-indigo-900 font-bold ring-2 ring-indigo-100"
+                                                  : "border-slate-200 bg-white hover:bg-slate-100 text-slate-700"
+                                              }`}
+                                            >
+                                              {isImageUrl(opt) ? (
+                                                // Jika opsi B berupa gambar, render gambar kecil di dalam tombol
+                                                <img src={opt} alt="Opsi" className="max-h-12 w-auto rounded" />
+                                              ) : (
+                                                // Jika teks biasa
+                                                <span>{opt}</span>
+                                              )}
+                                            </button>
+                                          );
+                                        })}
+                                      </div>
+                          
+                                    </div>
+                                  );
+                                });
+                              })()}
                             </div>
                           )}
-
                           {/* ISIAN SINGKAT */}
                           {q.type === 'Isian Singkat' && (
                             <div>
@@ -1594,11 +1671,52 @@ export default function ModulTable({ data, formInput, onBack, mode, setCurrentMe
                               </tr>
                             </thead>
                             <tbody>
-                              {q.matchingPairs.map((pair, i) => <tr key={i}><td className="border-2 border-slate-300 p-3 text-xs md:text-sm text-slate-800">{pair.prompt}</td><td className="border-2 border-slate-300 p-3 text-sm"></td></tr>)}
+                              {(() => {
+                                // 1. Gandakan data dan acak urutannya khusus untuk kolom B
+                                const shuffledB = [...q.matchingPairs].sort(() => Math.random() - 0.5);
+                                
+                                // 2. Tampilkan baris tabel (Kolom A tetap urut, Kolom B pakai yang diacak)
+                                return q.matchingPairs.map((pair, i) => {
+                                  // Ambil nilai untuk kolom A dan kolom B
+                                  const valueA = pair.prompt;
+                                  const valueB = shuffledB[i].target || shuffledB[i].answer || ""; // Pastikan string kosong jika tidak ada data
+                                
+                                  // Buat fungsi kecil untuk mengecek apakah sebuah string adalah URL gambar
+                                  const isImageUrl = (url: string) => {
+                                    return typeof url === 'string' && 
+                                           (url.startsWith('http') || url.startsWith('/')) && 
+                                           url.match(/\.(jpeg|jpg|gif|png|webp)$/i) != null; // Saya tambahkan webp dan "i" (case-insensitive) agar lebih kebal
+                                  };
+                                
+                                  return (
+                                    <tr key={i}>
+                                      {/* Kolom A */}
+                                      <td className="border-2 border-slate-300 p-3 text-xs md:text-sm text-slate-800">
+                                        {valueA}
+                                      </td>
+                                      {/* Kolom B */}
+                                      <td className="border-2 border-slate-300 p-3 text-sm text-slate-800">
+                                        {/* Gunakan ternary operator untuk rendering kondisional */}
+                                        {isImageUrl(valueB) ? (
+                                          // JIKA GAMBAR, TAMPILKAN TAG <img>
+                                          <img 
+                                            src={valueB} 
+                                            alt={`Jawaban untuk ${pair.prompt}`} 
+                                            className="max-h-24 w-auto rounded" 
+                                          />
+                                        ) : (
+                                          // JIKA BUKAN GAMBAR, TAMPILKAN TEKS
+                                          <span>{valueB}</span>
+                                        )}
+                                      </td>
+                                    </tr>
+                                  );
+                                });
+                              })()} {/* <--- PENUTUP FUNGSI IIFE */}
                             </tbody>
                           </table>
                         </div>
-                      )}
+                      )} {/* <--- PENUTUP KONDISI SOAL MENJODOHKAN */}
                       {q.type === 'Isian Singkat' && <div className="ml-2 mt-4"><div className="w-full border-b-2 border-slate-400 border-dotted h-8" /></div>}
                       {q.type === 'Uraian' && <div className="ml-2 mt-4 space-y-2"><div className="w-full border-b-2 border-slate-400 border-dotted h-8" /><div className="w-full border-b-2 border-slate-400 border-dotted h-8" /></div>}
                     </div>
