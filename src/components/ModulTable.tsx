@@ -1022,16 +1022,38 @@ export default function ModulTable({ data, formInput, onBack, mode, setCurrentMe
                           {/* Tambahkan class: option-row, option-letter, dan option-text */}
                           {q.type === 'Pilihan Ganda' && q.options && (
                             <div className="grid grid-cols-1 gap-2 ml-2 mt-2">
-                              {q.options.map((opt, i) => (
-                                <div key={i} className="flex gap-3 items-start text-xs md:text-sm option-row">
-                                  <span className="font-bold text-slate-700 w-5 option-letter">
-                                    {String.fromCharCode(65 + i)}.
-                                  </span>
-                                  <span className="text-slate-800 option-text">
-                                    {cleanOptionText(opt, i)}
-                                  </span>
-                                </div>
-                              ))}
+                              {q.options.map((opt, i) => {
+                                // Cek apakah opsi ini adalah opsi yang sedang dipilih
+                                const isSelected = quizAnswers[q.number] === i;
+                                
+                                return (
+                                  <button
+                                    key={i}
+                                    // Tambahkan fungsi onClick untuk menyimpan jawaban ke dalam state
+                                    onClick={() => setQuizAnswers(prev => ({ ...prev, [q.number]: i }))}
+                                    className={cn(
+                                      "w-full text-left p-3.5 rounded-xl border transition-all flex items-start gap-3 cursor-pointer outline-none focus:ring-2 focus:ring-blue-100 option-row",
+                                      // Ubah warna background & border jika opsi dipilih
+                                      isSelected 
+                                        ? "border-blue-600 bg-blue-50/80 shadow-sm text-blue-900" 
+                                        : "border-slate-200 hover:border-blue-200 hover:bg-slate-50/50 text-slate-800"
+                                    )}
+                                  >
+                                    <span className={cn(
+                                      "font-bold w-5 shrink-0 option-letter",
+                                      isSelected ? "text-blue-700" : "text-slate-700"
+                                    )}>
+                                      {String.fromCharCode(65 + i)}.
+                                    </span>
+                                    <span className={cn(
+                                      "text-xs md:text-sm option-text leading-snug",
+                                      isSelected ? "font-semibold" : ""
+                                    )}>
+                                      {cleanOptionText(opt, i)}
+                                    </span>
+                                  </button>
+                                );
+                              })}
                             </div>
                           )}
                           {/* BENAR SALAH */}
