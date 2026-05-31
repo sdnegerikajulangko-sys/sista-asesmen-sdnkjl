@@ -53,7 +53,7 @@ export default function App() {
   const handleToggleSidebar = () => {
     setIsSidebarCollapsed(prev => {
       const next = !prev;
-      localStorage.setItem('Sista_sidebar_collapsed', String(next));
+      localStorage.setItem('sista_sidebar_collapsed', String(next));
       return next;
     });
   };
@@ -235,7 +235,7 @@ export default function App() {
     setErrorText(null);
     if (item !== 'dashboard' && isSidebarCollapsed) {
       setIsSidebarCollapsed(false);
-      localStorage.setItem('Sista_sidebar_collapsed', 'false');
+      localStorage.setItem('sista_sidebar_collapsed', 'false');
     }
   };
 
@@ -604,8 +604,8 @@ export default function App() {
                               if (tempProfileName.trim() && tempProfileRole.trim()) {
                                 setProfileName(tempProfileName.trim());
                                 setProfileRole(tempProfileRole.trim());
-                                localStorage.setItem('Sista_profile_name', tempProfileName.trim());
-                                localStorage.setItem('Sista_profile_role', tempProfileRole.trim());
+                                localStorage.setItem('sista_profile_name', tempProfileName.trim());
+                                localStorage.setItem('sista_profile_role', tempProfileRole.trim());
                                 setIsEditingProfile(false);
                               } else {
                                 alert("Nama dan Tugas tidak boleh kosong.");
@@ -646,7 +646,7 @@ export default function App() {
               <ModulTable 
                 data={generatedResult} 
                 formInput={lastFormInput || {
-                  schoolName: "SD Negeri 1 Merdeka",
+                  schoolName: "SD Negeri 1 Ampana Kota",
                   subject: "Umum",
                   grade: "IV",
                   semester: "1",
